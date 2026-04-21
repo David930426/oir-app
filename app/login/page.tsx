@@ -1,25 +1,48 @@
+"use client";
+
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { LogIn, Sparkles } from "lucide-react";
+import { Sparkles, LogIn } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { SignIn } from "@/lib/actions/login.action";
 
 export default function LoginPage() {
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm({
+    defaultValues: { email: "", password: "", remember: false },
+  });
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col items-center gap-2 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100/80 border border-blue-200 text-xs font-medium text-blue-800 shadow-sm mb-2">
-          <Sparkles className="h-3 w-3" />
+      <div className="flex flex-col items-center gap-3 text-center">
+        <Image
+          src="/LogoFull.png"
+          alt="OIR Portal Logo"
+          width={300}
+          height={72}
+          className="mb-1 drop-shadow-sm w-auto h-auto max-w-60"
+          priority
+        />
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-xs font-semibold text-blue-700 shadow-sm">
+          <Sparkles className="h-3.5 w-3.5 text-blue-500" />
           OIR Portal
         </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 drop-shadow-sm">
-          Welcome Back
-        </h1>
-        <p className="text-sm text-slate-500">
-          Enter your credentials to access the OIR portal
-        </p>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            Welcome Back
+          </h1>
+          <p className="text-sm font-medium text-slate-500">
+            Enter your credentials to access your account
+          </p>
+        </div>
       </div>
 
-      <form className="flex flex-col gap-5 mt-2">
+      <form onSubmit={handleSubmit(SignIn)} className="flex flex-col gap-5 mt-4">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <label
@@ -30,64 +53,66 @@ export default function LoginPage() {
             </label>
             <Input
               id="email"
-              name="email"
               type="email"
               placeholder="student@thu.edu.tw"
-              className="bg-white/80 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 h-11 shadow-sm"
-              required
+              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
+              {...register("email", { required: true })}
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label
-              htmlFor="password"
-              className="text-sm font-semibold text-slate-700"
-            >
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="password"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Password
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <Input
               id="password"
-              name="password"
               type="password"
               placeholder="••••••••"
-              className="bg-white/80 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 h-11 shadow-sm"
-              required
+              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
+              {...register("password", { required: true })}
             />
           </div>
         </div>
-        <div className="flex items-center justify-between mt-1">
+
+        <div className="flex items-center mt-1">
           <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer hover:text-slate-900 transition-colors">
             <input
               type="checkbox"
-              name="remember"
-              className="h-4 w-4 rounded border-slate-300 bg-white text-blue-600 focus:ring-blue-600 focus:ring-offset-white"
+              className="h-4 w-4 rounded border-slate-300 text-blue-700 focus:ring-blue-600 transition-all"
+              {...register("remember")}
             />
             Remember me
           </label>
-
-          <Link
-            href="/forgot-password"
-            className="text-sm font-medium text-blue-600 hover:underline hover:text-blue-500 transition-colors"
-          >
-            Forgot password?
-          </Link>
         </div>
+
         <Button
           type="submit"
-          className="w-full mt-4 gap-2 text-md h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold tracking-wide border-none shadow-md"
+          disabled={isSubmitting}
+          className="w-full mt-2 gap-2 text-sm h-11 bg-blue-700 hover:bg-blue-800 text-white font-semibold border-none shadow-md transition-all rounded-lg"
         >
-          <LogIn className="h-4 w-4" />
-          Sign in to account
+          <LogIn className={`h-4 w-4 ${isSubmitting ? "animate-pulse" : ""}`} />
+          {isSubmitting ? "Signing In..." : "Sign In"}
         </Button>
       </form>
 
-      <p className="text-center text-sm text-slate-500 mt-2">
+      <p className="text-center text-sm text-slate-500 mt-4">
         Don't have an account yet?{" "}
         <Link
           href="/register"
-          className="font-semibold text-blue-600 hover:underline hover:text-blue-700 transition-colors"
+          className="font-semibold text-blue-700 hover:text-blue-800 hover:underline transition-colors"
         >
-          Sign up
+          Request access
         </Link>
       </p>
     </div>
