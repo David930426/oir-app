@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from '@/context/AuthContext';
+// import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -11,18 +11,18 @@ import { motion } from 'motion/react';
 import { useEffect } from 'react';
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/');
-    } else if (user.role === 'admin') {
-      router.push('/admin');
-    }
-  }, [user, router]);
+  // useEffect(() => {
+  //   if (!user) {
+  //     router.push('/');
+  //   } else if (user.role === 'admin') {
+  //     router.push('/dashboard');
+  //   }
+  // }, [user, router]);
 
-  if (!user || user.role === 'admin') return null;
+  // if (!user || user.role === 'admin') return null;
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl space-y-8">
@@ -31,25 +31,25 @@ export default function Profile() {
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col md:flex-row items-center gap-8 bg-card p-8 rounded-3xl border shadow-sm"
       >
-        <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-primary/10">
+        {/* <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-primary/10">
           <AvatarImage src={user.avatar} />
           <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-        </Avatar>
+        </Avatar> */}
         
         <div className="flex-1 text-center md:text-left space-y-3">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight">{user.name}</h1>
+            {/* <h1 className="text-3xl font-bold tracking-tight">{user.name}</h1> */}
             <Badge variant="secondary" className="w-fit mx-auto md:mx-0">Student</Badge>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-muted-foreground">
             <div className="flex items-center justify-center md:justify-start gap-2">
               <User className="h-4 w-4" />
-              <span>Student ID: <span className="text-foreground font-mono font-bold">{user.studentId}</span></span>
+              {/* <span>Student ID: <span className="text-foreground font-mono font-bold">{user.studentId}</span></span> */}
             </div>
             <div className="flex items-center justify-center md:justify-start gap-2">
               <Mail className="h-4 w-4" />
-              <span>{user.email}</span>
+              {/* <span>{user.email}</span> */}
             </div>
           </div>
 
@@ -58,10 +58,10 @@ export default function Profile() {
               <Settings className="h-4 w-4" />
               Edit Profile
             </Button>
-            <Button variant="destructive" size="sm" className="gap-2" onClick={logout}>
-              <LogOut className="h-4 w-4" />
+            {/* <Button variant="destructive" size="sm" className="gap-2" onClick={logout}> */}
+              {/* <LogOut className="h-4 w-4" />
               Logout
-            </Button>
+            </Button> */}
           </div>
         </div>
       </motion.div>

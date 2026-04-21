@@ -15,7 +15,7 @@ export function Highlights() {
             <h2 className="text-3xl font-bold tracking-tight">OIR Bulletin</h2>
             <p className="text-muted-foreground mt-1">Latest updates, news, and opportunities for international students.</p>
           </div>
-          <Link href="/bulletin" className="gap-2 group rounded-full flex items-center border px-3 py-1">
+          <Link href="/main/bulletin" className="gap-2 group rounded-full flex items-center border px-3 py-1">
             View All <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

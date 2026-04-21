@@ -3,50 +3,30 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Globe, Menu, X, LogIn, ChevronDown } from 'lucide-react';
+import { Globe, Menu, X, LogIn } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useAuth } from '@/context/AuthContext';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { user, login, logout, isAuthenticated } = useAuth();
 
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Notice Board', path: '/board' },
-    { name: 'Bulletin', path: '/bulletin' },
-    { name: 'Resources', path: '/resources' },
-    { name: 'Organizations', path: '/orgs' },
+    { name: 'Home', path: '/main' },
+    { name: 'Notice Board', path: '/main/board' },
+    { name: 'Bulletin', path: '/main/bulletin' },
+    { name: 'Resources', path: '/main/resources' },
+    { name: 'Organizations', path: '/main/orgs' },
   ];
 
   const isActive = (path: string) => pathname === path;
-
-  const handleAccountClick = () => {
-    if (!isAuthenticated) return;
-    if (user?.role === 'admin') {
-      router.push('/admin');
-    } else {
-      router.push('/profile');
-    }
-  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex h-18 items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-90">
+          <Link href="/main" className="flex items-center gap-3 transition-opacity hover:opacity-90">
             <div className="h-14 w-auto flex items-center">
               <img 
                 src="/Logo.png" 
@@ -74,69 +54,19 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" size="sm" className="gap-2 hover:cursor-pointer">
               <Globe className="h-4 w-4" />
               <span>Translate</span>
             </Button>
-            
-            {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger render={<Button variant="ghost" className="relative h-10 w-10 rounded-full" />}>
-                  <Avatar className="h-10 w-10 border-2 border-primary/10">
-                    <AvatarImage src={user?.avatar} alt={user?.name} />
-                    <AvatarFallback>{user?.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end">
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user?.name}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user?.role === 'student' ? `ID: ${user?.studentId}` : user?.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleAccountClick}>
-                    {user?.role === 'admin' ? 'Admin Portal' : 'My Account'}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/settings')}>Settings</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="text-destructive font-medium">
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <DropdownMenu>
-                <DropdownMenuTrigger render={<Button size="sm" className="gap-2 shrink-0" />}>
-                  <LogIn className="h-4 w-4" />
-                  Account
-                  <ChevronDown className="h-3 w-3 opacity-50" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Sign in for Demo</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => login('student')}>
-                    Login as Student
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => login('admin')}>
-                    Login as Admin
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            <Button size="sm" className="gap-2 hover:cursor-pointer" onClick={() => router.push('/login')}>
+              <LogIn className="h-4 w-4" />
+              <span>Login</span>
+            </Button>
           </div>
 
           {/* Mobile Menu Toggle */}
           <div className="md:hidden flex items-center gap-4">
-            {isAuthenticated && (
-              <Avatar className="h-8 w-8 border border-primary/20" onClick={handleAccountClick}>
-                <AvatarImage src={user?.avatar} />
-                <AvatarFallback>{user?.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-              </Avatar>
-            )}
-            <button onClick={() => setIsOpen(!isOpen)}>
+            <button onClick={() => setIsOpen(!isOpen)} className="hover:cursor-pointer">
               {isOpen ? <X /> : <Menu />}
             </button>
           </div>
@@ -166,14 +96,13 @@ export default function Navbar() {
                 </Link>
               ))}
               <hr />
-              {!isAuthenticated ? (
-                <div className="grid grid-cols-2 gap-2">
-                   <Button variant="outline" size="sm" onClick={() => login('student')}>Student Login</Button>
-                   <Button variant="outline" size="sm" onClick={() => login('admin')}>Admin Login</Button>
-                </div>
-              ) : (
-                <Button variant="destructive" onClick={logout}>Logout</Button>
-              )}
+              <Button className="w-full gap-2 hover:cursor-pointer" onClick={() => {
+                setIsOpen(false);
+                router.push('/login');
+              }}>
+                <LogIn className="h-4 w-4" />
+                <span>Login</span>
+              </Button>
             </div>
           </motion.div>
         )}
