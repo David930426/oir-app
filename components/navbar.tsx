@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Globe, Menu, X, Landmark, User, LogIn, ChevronDown } from 'lucide-react';
+import { Globe, Menu, X, LogIn, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '@/context/AuthContext';
@@ -25,8 +25,8 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Notice Board', path: '/mail' },
-    { name: 'Bulletin', path: '/news' },
+    { name: 'Notice Board', path: '/board' },
+    { name: 'Bulletin', path: '/bulletin' },
     { name: 'Resources', path: '/resources' },
     { name: 'Organizations', path: '/orgs' },
   ];
@@ -49,7 +49,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-90">
             <div className="h-14 w-auto flex items-center">
               <img 
-                src="https://www.thu.edu.tw/upload/logo_20230524.png" 
+                src="/Logo.png" 
                 alt="Tunghai University OIR" 
                 className="h-10 w-auto object-contain"
                 referrerPolicy="no-referrer"
