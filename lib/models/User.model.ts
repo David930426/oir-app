@@ -1,22 +1,33 @@
-import { Schema, Document, model, models } from "mongoose";
+import mongoose from "mongoose";
 
 // 1. Update the TypeScript Interface
-export interface IUser extends Document {
-  email: string;
-  password: string;
-  role: "student" | "staff" | "admin";
-  rememberToken?: string; // Optional string to store the session token
-  createdAt: Date;
-  updatedAt: Date;
-}
+// export interface IUser extends Document {
+//   email: string;
+//   password: string;
+//   role: "student" | "admin";
+//   rememberMe: boolean;
+//   createdAt: Date;
+//   updatedAt: Date;
+// }
 
 // 2. Update the Mongoose Schema
-const UserSchema = new Schema<IUser>(
+const userSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      unique: true,
+      index: true,
+    },
+    batchId: {
+      type: String,
+      required: [true, "StudentId is required"],
+      unique: true,
+    },
     email: {
       type: String,
       required: [true, "Email is required"],
-      unique: true, 
+      unique: true,
       trim: true,
       lowercase: true,
       match: [
@@ -28,25 +39,20 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters long"],
-      select: false, 
+      select: false,
     },
     role: {
       type: String,
-      enum: ["student", "staff", "admin"],
+      enum: ["student", "admin"],
       default: "student",
-    },
-    // Add the new field here
-    rememberToken: {
-      type: String,
-      default: null,
-      select: false, // Security: Keep it hidden from general queries
     },
   },
   {
-    timestamps: true, 
-  }
+    timestamps: true,
+  },
 );
 
-const User = models.User || model<IUser>("User", UserSchema);
+export type IUser = mongoose.InferSchemaType<typeof userSchema> & { _id: mongoose.Types.ObjectId };
 
-export default User;
+export default (mongoose.models.User as mongoose.Model<IUser>) ||
+    mongoose.model<IUser>("User", userSchema);

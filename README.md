@@ -14,7 +14,7 @@ In the root directory of the project (where the `package.json` file is located),
 
 Open the `.env` file and paste the following configuration. Replace the values with your production database credentials:
 
-```env
+```bash
 # Database MongoDB User
 DB_USERNAME=admin
 DB_PASSWORD=superSecretPassword123
@@ -22,6 +22,28 @@ DB_NAME=oir
 
 # The MongoDB connection string:
 MONGODB_URI="mongodb://admin:superSecretPassword123@localhost:27017/oir?authSource=admin"
+
+# Private and Public Key
+PRIVATE_KEY_PATH="./private.pem"
+PUBLIC_KEY_PATH="./public.pem"
+```
+
+### 3. Start Databse in MongoDB
+
+Make sure you has already downloaded the docker
+
+```bash
+docker compose up -d
+```
+
+### 4. Generate Private and Public Key
+
+```bash
+# Create Private Key
+ openssl genrsa -out private.pem 2048
+
+ # Taking Out Public Key
+ openssl rsa -in private.pem -pubout -out public.pem
 ```
 
 ## Getting Started

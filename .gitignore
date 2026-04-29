@@ -54,3 +54,8 @@ Thumbs.db
 # ========================
 *.tsbuildinfo
 next-env.d.ts
+
+# ========================
+# Private and Public Keys
+# ========================
+*.pem

@@ -6,21 +6,22 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import crypto from "crypto";
+import { OIR_AUTH } from "@/constant";
 
 // Match the types from your react-hook-form
 interface SignInInput {
-  email: string;
+  batchId: string;
   password: string;
-  remember: boolean;
+  rememberMe: boolean;
 }
 
 export async function SignIn(data: SignInInput) {
-  const { email, password, remember } = data;
+  const { batchId, password, rememberMe } = data;
 
   try {
     await dbConnect();
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ batchId }).select("password");
 
     if (!user) {
       return { success: false, error: "Invalid email or password." };
@@ -33,10 +34,10 @@ export async function SignIn(data: SignInInput) {
     }
 
     let token = null;
-    if (remember) {
+    if (rememberMe) {
       token = crypto.randomBytes(32).toString("hex");
 
-      user.rememberToken = token;
+      // user.rememberToken = token;
       await user.save();
     }
 
@@ -48,11 +49,11 @@ export async function SignIn(data: SignInInput) {
       token: token,
     });
 
-    const expiresIn = remember
+    const expiresIn = rememberMe
       ? 30 * 24 * 60 * 60 * 1000 // 30 days
       : 24 * 60 * 60 * 1000; // 1 day
 
-    cookieStore.set("oir_session", sessionData, {
+    cookieStore.set(OIR_AUTH, sessionData, {
       httpOnly: true, // Security: Prevents malicious JavaScript from stealing the cookie
       secure: process.env.NODE_ENV === "production", // Only send over HTTPS in production
       sameSite: "lax",

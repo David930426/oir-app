@@ -1,4 +1,4 @@
-import ChatBot from "@/components/chat-bot";
+import Chat from "@/components/chat";
 import Navbar from "@/components/navbar";
 import { Footer } from "@/components/footer";
 
@@ -12,7 +12,7 @@ export default function Layout({
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
-      <ChatBot />
+      <Chat />
     </div>
   );
 }

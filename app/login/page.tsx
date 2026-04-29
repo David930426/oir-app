@@ -14,7 +14,7 @@ export default function LoginPage() {
     handleSubmit,
     formState: { isSubmitting },
   } = useForm({
-    defaultValues: { email: "", password: "", remember: false },
+    defaultValues: { batchId: "", password: "", rememberMe: false },
   });
 
   return (
@@ -42,21 +42,24 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(SignIn)} className="flex flex-col gap-5 mt-4">
+      <form
+        onSubmit={handleSubmit(SignIn)}
+        className="flex flex-col gap-5 mt-4"
+      >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <label
-              htmlFor="email"
+              htmlFor="batchId"
               className="text-sm font-semibold text-slate-700"
             >
-              Email Address
+              Student ID
             </label>
             <Input
-              id="email"
-              type="email"
-              placeholder="student@thu.edu.tw"
+              id="batchId"
+              type="batchId"
+              placeholder="S12345678"
               className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
-              {...register("email", { required: true })}
+              {...register("batchId", { required: true })}
             />
           </div>
 
@@ -90,7 +93,7 @@ export default function LoginPage() {
             <input
               type="checkbox"
               className="h-4 w-4 rounded border-slate-300 text-blue-700 focus:ring-blue-600 transition-all"
-              {...register("remember")}
+              {...register("rememberMe")}
             />
             Remember me
           </label>
