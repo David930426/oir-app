@@ -12,6 +12,7 @@ import {
   LogOut,
   User,
   Airplay,
+  Users,
 } from "lucide-react";
 import {
   Sidebar,
@@ -43,7 +44,8 @@ export default function AdminSidebarUI({
     { name: "Student Notices", href: "/dashboard/notices", icon: Bell },
     { name: "Bulletin", href: "/dashboard/bulletin", icon: Newspaper },
     { name: "Resources", href: "/dashboard/resources", icon: FileText },
-    { name: "Main", href: "/main", icon: Airplay },
+    { name: "Main Page", href: "/main", icon: Airplay },
+    { name: "Accounts", href: "/dashboard/accounts", icon: Users },
   ];
 
   return (
