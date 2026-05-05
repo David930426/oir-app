@@ -1,5 +1,9 @@
 "use server";
 
+import bcrypt from "bcryptjs";
+import dbConnect from "../dbConnect";
+import User from "../models/User.model";
+
 export async function registerUser(data: {
   name: string;
   batchId: string;
@@ -14,12 +18,20 @@ export async function registerUser(data: {
       return { error: "All fields are required" };
     }
 
-    // TODO: Connect to your database here
-    // Example:
-    // await connectToDB();
-    // const existingUser = await User.findOne({ email });
-    // if (existingUser) return { error: "Email is already registered" };
-    // await User.create({ name, batchId, email, password }); // Make sure to hash password in production!
+    await dbConnect();
+
+    const existingUser = await User.find({
+      $or: [{ batchId }, { email }],
+    });
+
+    if (existingUser.length > 0) {
+      throw new Error("User already exists");
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    await User.create({...data, role: "student", password: hashedPassword})
 
     return { success: true };
   } catch (error: any) {

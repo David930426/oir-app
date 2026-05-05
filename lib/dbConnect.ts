@@ -8,7 +8,9 @@ declare global {
   };
 }
 
-const MONGODB_URI = process.env.MONGODB_URI!;
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  "mongodb://admin:admin@localhost:27017/oir?authSource=admin";
 
 if (!MONGODB_URI) {
   logger.error(
@@ -16,7 +18,7 @@ if (!MONGODB_URI) {
     "There is no MONGODB_URI environment variable",
   );
   throw new Error(
-    "Please define the MONGODB_URI environment variable inside .env.local",
+    "Please define the MONGODB_URI environment variable inside .env",
   );
 }
 

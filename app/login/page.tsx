@@ -3,19 +3,40 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { Sparkles, LogIn } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { SignIn } from "@/lib/actions/login.action";
+import { signIn } from "@/lib/actions/login.action";
+import { useState } from "react";
+import { toast } from "sonner";
+import { IUser } from "@/lib/models/User.model";
+import { SubmitButton } from "@/components/submit-button";
 
 export default function LoginPage() {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
   } = useForm({
     defaultValues: { batchId: "", password: "", rememberMe: false },
   });
+  const [error, setError] = useState<string | null>(null)
+
+  const onSubmit = async (data: Pick<IUser, "batchId" | "password"> & {rememberMe: boolean}) => {
+      setError(null);
+      
+      try {
+        const result = await signIn(data);
+        
+        if (result?.error) {
+          setError(result.error);
+          toast.error(result.error);
+        } else {
+          toast.success("Successfully Login");
+        }
+      } catch (err) {
+        console.error("Registration failed", err);
+        setError("Something went wrong. Please try again later.");
+      }
+    };
 
   return (
     <div className="flex flex-col gap-6">
@@ -43,7 +64,7 @@ export default function LoginPage() {
       </div>
 
       <form
-        onSubmit={handleSubmit(SignIn)}
+        onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-5 mt-4"
       >
         <div className="flex flex-col gap-4">
@@ -99,15 +120,14 @@ export default function LoginPage() {
           </label>
         </div>
 
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full mt-2 gap-2 text-sm h-11 bg-blue-700 hover:bg-blue-800 text-white font-semibold border-none shadow-md transition-all rounded-lg"
-        >
-          <LogIn className={`h-4 w-4 ${isSubmitting ? "animate-pulse" : ""}`} />
-          {isSubmitting ? "Signing In..." : "Sign In"}
-        </Button>
+        <SubmitButton register={false} />
       </form>
+
+      {error && (
+          <div className="rounded-md bg-red-50 p-3 border border-red-200 text-sm font-medium text-red-800 text-center">
+            {error}
+          </div>
+        )}
 
       <p className="text-center text-sm text-slate-500 mt-4">
         Don't have an account yet?{" "}

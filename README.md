@@ -26,6 +26,10 @@ MONGODB_URI="mongodb://admin:superSecretPassword123@localhost:27017/oir?authSour
 # Private and Public Key
 PRIVATE_KEY_PATH="./private.pem"
 PUBLIC_KEY_PATH="./public.pem"
+
+# Seeding for the first time
+SEED_BATCH=A001
+SEED_PASS=
 ```
 
 ### 3. Start Databse in MongoDB
@@ -48,7 +52,12 @@ docker compose up -d
 
 ## Getting Started
 
-First, install the dependencies:
+First, run seed to make new admin:
+```bash
+npx tsx --env-file=.env seed.ts
+```
+
+Then, install the dependencies:
 
 ```bash
 pnpm install

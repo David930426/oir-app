@@ -35,7 +35,7 @@ export interface Organization {
 export interface User {
   id: string;
   name: string;
-  studentId?: string;
+  batchId?: string;
   email: string;
   role: 'admin' | 'student';
   avatar?: string;

@@ -1,16 +1,5 @@
 import mongoose from "mongoose";
 
-// 1. Update the TypeScript Interface
-// export interface IUser extends Document {
-//   email: string;
-//   password: string;
-//   role: "student" | "admin";
-//   rememberMe: boolean;
-//   createdAt: Date;
-//   updatedAt: Date;
-// }
-
-// 2. Update the Mongoose Schema
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -21,7 +10,7 @@ const userSchema = new mongoose.Schema(
     },
     batchId: {
       type: String,
-      required: [true, "StudentId is required"],
+      required: [true, "BatchId is required"],
       unique: true,
     },
     email: {
@@ -46,13 +35,20 @@ const userSchema = new mongoose.Schema(
       enum: ["student", "admin"],
       default: "student",
     },
+    approved: {
+      type: Boolean,
+      default: false,
+    },
+    avatar: { type: String, required: false },
   },
   {
     timestamps: true,
   },
 );
 
-export type IUser = mongoose.InferSchemaType<typeof userSchema> & { _id: mongoose.Types.ObjectId };
+export type IUser = mongoose.InferSchemaType<typeof userSchema> & {
+  _id: mongoose.Types.ObjectId;
+};
 
 export default (mongoose.models.User as mongoose.Model<IUser>) ||
-    mongoose.model<IUser>("User", userSchema);
+  mongoose.model<IUser>("User", userSchema);

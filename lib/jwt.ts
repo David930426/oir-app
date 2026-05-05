@@ -9,8 +9,8 @@ import { AuthPayload } from '@/types/payload';
  */
 export async function signAuthToken(payload: AuthPayload): Promise<string> {
   try {
-    const privateKeyString = process.env.PRIVATE_KEY!;
-    const privateKey = await importPKCS8(privateKeyString, 'RS256');
+    const privateKeyString = process.env.PRIVATE_KEY || "";
+    const privateKey = await importPKCS8(privateKeyString.replace(/\\n/g, '\n'), 'RS256');
 
     const token = await new SignJWT(payload as any)
       .setProtectedHeader({ alg: 'RS256' })
@@ -32,9 +32,9 @@ export async function signAuthToken(payload: AuthPayload): Promise<string> {
  */
 export async function verifyAuthToken(token: string): Promise<AuthPayload | null> {
   try {
-    const publicKeyString = process.env.PUBLIC_KEY!;
+    const publicKeyString = process.env.PUBLIC_KEY || "";
     // importSPKI is used for Public Keys
-    const publicKey = await importSPKI(publicKeyString, 'RS256');
+    const publicKey = await importSPKI(publicKeyString.replace(/\\n/g, '\n'), 'RS256');
 
     const { payload } = await jwtVerify(token, publicKey);
     
