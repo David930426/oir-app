@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/lib/actions/logout.action";
+import { useConfirm } from "@/components/confirm-dialog";
 
 type AuthUser = {
   name: string;
@@ -36,6 +37,17 @@ export default function Navbar({ user }: { user?: AuthUser | null }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const confirm = useConfirm();
+
+  const handleLogout = async () => {
+    const ok = await confirm({
+      title: "Sign out of your account?",
+      description: "You'll need to log in again to continue.",
+      confirmLabel: "Sign out",
+      tone: "warning",
+    });
+    if (ok) await logout();
+  };
 
   const navLinks = [
     { name: "Home", path: "/main" },
@@ -141,7 +153,7 @@ export default function Navbar({ user }: { user?: AuthUser | null }) {
 
                     <DropdownMenuItem
                       className="text-destructive cursor-pointer"
-                      onClick={() => logout()}
+                      onClick={handleLogout}
                     >
                       <LogOut className="h-4 w-4 mr-2" />
                       Logout
@@ -234,7 +246,7 @@ export default function Navbar({ user }: { user?: AuthUser | null }) {
                       className="w-full gap-2 hover:cursor-pointer"
                       onClick={() => {
                         setIsOpen(false);
-                        logout();
+                        handleLogout();
                       }}
                     >
                       <LogOut className="h-4 w-4" />

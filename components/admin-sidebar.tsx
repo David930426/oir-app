@@ -28,6 +28,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { logout } from "@/lib/actions/logout.action";
+import { useConfirm } from "@/components/confirm-dialog";
 import { IUser } from "@/lib/models/User.model";
 
 export default function AdminSidebarUI({
@@ -38,6 +39,17 @@ export default function AdminSidebarUI({
   user: Pick<IUser, "name" | "role">;
 }) {
   const pathname = usePathname();
+  const confirm = useConfirm();
+
+  const handleLogout = async () => {
+    const ok = await confirm({
+      title: "Sign out of your account?",
+      description: "You'll need to log in again to continue.",
+      confirmLabel: "Sign out",
+      tone: "warning",
+    });
+    if (ok) await logout();
+  };
 
   const navItems = [
     { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -107,7 +119,7 @@ export default function AdminSidebarUI({
               <SidebarMenuItem>
                 <SidebarMenuButton
                   className="text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors hover:cursor-pointer"
-                  onClick={() => logout()}
+                  onClick={handleLogout}
                 >
                   <LogOut />
                   <span>Log out</span>

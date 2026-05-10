@@ -52,9 +52,10 @@ docker compose up -d
 
 ## Getting Started
 
-First, run seed to make new admin:
+First, run the seed script to create the initial admin user. The script automatically loads variables from your `.env` file, so just run:
+
 ```bash
-npx tsx --env-file=.env seed.ts
+npx tsx seed.ts
 ```
 
 Then, install the dependencies:

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { ConfirmDialogProvider } from "@/components/confirm-dialog";
 
 export const metadata: Metadata = {
   title: "Tunghai OIR | Office of International Relations",
@@ -16,8 +17,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased font-sans">
-        {children}
-        <Toaster richColors={true} position="top-center"/>
+        <ConfirmDialogProvider>{children}</ConfirmDialogProvider>
+        <Toaster richColors={true} position="top-center" />
       </body>
     </html>
   );

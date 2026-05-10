@@ -3,40 +3,44 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { Sparkles } from "lucide-react";
+import { Eye, EyeOff, Sparkles } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "@/lib/actions/login.action";
 import { useState } from "react";
 import { toast } from "sonner";
-import { IUser } from "@/lib/models/User.model";
 import { SubmitButton } from "@/components/submit-button";
+import { loginSchema, type LoginInput } from "@/lib/validations/auth.schema";
 
 export default function LoginPage() {
   const {
     register,
     handleSubmit,
-  } = useForm({
+    formState: { errors },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
     defaultValues: { batchId: "", password: "", rememberMe: false },
   });
-  const [error, setError] = useState<string | null>(null)
+  const [formError, setFormError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = async (data: Pick<IUser, "batchId" | "password"> & {rememberMe: boolean}) => {
-      setError(null);
-      
-      try {
-        const result = await signIn(data);
-        
-        if (result?.error) {
-          setError(result.error);
-          toast.error(result.error);
-        } else {
-          toast.success("Successfully Login");
-        }
-      } catch (err) {
-        console.error("Registration failed", err);
-        setError("Something went wrong. Please try again later.");
+  const onSubmit = async (data: LoginInput) => {
+    setFormError(null);
+
+    try {
+      const result = await signIn(data);
+
+      if (result?.error) {
+        setFormError(result.error);
+        return;
       }
-    };
+
+      toast.success("Welcome back!");
+    } catch (err) {
+      console.error("Login failed", err);
+      setFormError("Something went wrong. Please try again later.");
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -65,6 +69,7 @@ export default function LoginPage() {
 
       <form
         onSubmit={handleSubmit(onSubmit)}
+        noValidate
         className="flex flex-col gap-5 mt-4"
       >
         <div className="flex flex-col gap-4">
@@ -77,11 +82,25 @@ export default function LoginPage() {
             </label>
             <Input
               id="batchId"
-              type="batchId"
+              type="text"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
               placeholder="S12345678"
+              aria-invalid={Boolean(errors.batchId) || undefined}
+              aria-describedby={errors.batchId ? "batchId-error" : undefined}
               className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
-              {...register("batchId", { required: true })}
+              {...register("batchId")}
             />
+            {errors.batchId && (
+              <p
+                id="batchId-error"
+                role="alert"
+                className="text-xs font-medium text-red-700"
+              >
+                {errors.batchId.message}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -99,13 +118,42 @@ export default function LoginPage() {
                 Forgot password?
               </Link>
             </div>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
-              {...register("password", { required: true })}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="••••••••"
+                aria-invalid={Boolean(errors.password) || undefined}
+                aria-describedby={
+                  errors.password ? "password-error" : undefined
+                }
+                className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 pr-10 shadow-sm transition-all"
+                {...register("password")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700 hover:cursor-pointer transition-colors focus:outline-none focus-visible:text-blue-600"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <p
+                id="password-error"
+                role="alert"
+                className="text-xs font-medium text-red-700"
+              >
+                {errors.password.message}
+              </p>
+            )}
           </div>
         </div>
 
@@ -113,24 +161,28 @@ export default function LoginPage() {
           <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer hover:text-slate-900 transition-colors">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-slate-300 text-blue-700 focus:ring-blue-600 transition-all"
+              className="h-4 w-4 rounded border-slate-300 text-blue-700 hover:cursor-pointer focus:ring-blue-600 transition-all"
               {...register("rememberMe")}
             />
-            Remember me
+            Remember me for 30 days
           </label>
         </div>
+
+        {formError && (
+          <div
+            role="alert"
+            aria-live="polite"
+            className="rounded-md bg-red-50 p-3 border border-red-200 text-sm font-medium text-red-800 text-center"
+          >
+            {formError}
+          </div>
+        )}
 
         <SubmitButton register={false} />
       </form>
 
-      {error && (
-          <div className="rounded-md bg-red-50 p-3 border border-red-200 text-sm font-medium text-red-800 text-center">
-            {error}
-          </div>
-        )}
-
       <p className="text-center text-sm text-slate-500 mt-4">
-        Don't have an account yet?{" "}
+        Don&apos;t have an account yet?{" "}
         <Link
           href="/register"
           className="font-semibold text-blue-700 hover:text-blue-800 hover:underline transition-colors"

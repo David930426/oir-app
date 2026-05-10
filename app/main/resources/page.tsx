@@ -70,17 +70,17 @@ export default function Resources() {
           <div className="space-y-2">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground px-2">Categories</h3>
             <div className="space-y-1">
-              <button 
+              <button
                 onClick={() => setActiveCategory(null)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${!activeCategory ? 'bg-primary text-primary-foreground font-medium' : 'hover:bg-muted'}`}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors hover:cursor-pointer ${!activeCategory ? 'bg-primary text-primary-foreground font-medium' : 'hover:bg-muted'}`}
               >
                 All Resources
               </button>
               {categories.map((cat) => (
-                <button 
+                <button
                   key={cat.name}
                   onClick={() => setActiveCategory(cat.name)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${activeCategory === cat.name ? 'bg-primary text-primary-foreground font-medium' : 'hover:bg-muted'}`}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors hover:cursor-pointer ${activeCategory === cat.name ? 'bg-primary text-primary-foreground font-medium' : 'hover:bg-muted'}`}
                 >
                   <span className="flex items-center gap-2">
                     <cat.icon className="h-4 w-4" />

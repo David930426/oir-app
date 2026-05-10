@@ -1,39 +1,137 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserPlus, X } from "lucide-react";
-import { toggleApproveAccount, deleteAccount, createOrUpdateAccount } from "@/lib/actions/account.action";
+import { toast } from "sonner";
+import {
+  Check,
+  Eye,
+  EyeOff,
+  Loader2,
+  Trash2,
+  UserPlus,
+  X,
+} from "lucide-react";
+import {
+  bulkApproveAccounts,
+  bulkDeleteAccounts,
+  createOrUpdateAccount,
+  deleteAccount,
+  toggleApproveAccount,
+  type ActionResult,
+} from "@/lib/actions/account.action";
 import { UserType, getColumns } from "./columns";
 import { DataTable } from "./data-table";
+import { useConfirm } from "@/components/confirm-dialog";
+
+type FormState = {
+  name: string;
+  email: string;
+  batchId: string;
+  role: "student" | "admin";
+  password: string;
+};
+
+const EMPTY_FORM: FormState = {
+  name: "",
+  email: "",
+  batchId: "",
+  role: "student",
+  password: "",
+};
+
+function handleResult(result: ActionResult | undefined, fallbackError: string) {
+  if (!result) {
+    toast.error(fallbackError);
+    return false;
+  }
+  if (result.success) {
+    if (result.message) toast.success(result.message);
+    return true;
+  }
+  toast.error(result.error);
+  return false;
+}
 
 export default function AccountsClient({ users }: { users: UserType[] }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserType | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    batchId: "",
-    role: "user",
-    password: "",
-  });
+  const [formData, setFormData] = useState<FormState>(EMPTY_FORM);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSaving, startSaving] = useTransition();
+  const [isBulkPending, startBulk] = useTransition();
+  const confirm = useConfirm();
 
-  const handleApprove = async (id: string, currentStatus: boolean) => {
-    await toggleApproveAccount(id, !currentStatus);
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isModalOpen]);
+
+  const handleApprove = (id: string, currentStatus: boolean) => {
+    startBulk(async () => {
+      const result = await toggleApproveAccount(id, !currentStatus);
+      handleResult(result, "Failed to update approval.");
+    });
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this account? This action cannot be undone.")) {
-      await deleteAccount(id);
+    const target = users.find((u) => u._id === id);
+    const ok = await confirm({
+      title: target ? `Delete ${target.name}?` : "Delete this account?",
+      description:
+        "This permanently removes the account and cannot be undone.",
+      confirmLabel: "Delete",
+      tone: "danger",
+    });
+    if (!ok) return;
+    startBulk(async () => {
+      const result = await deleteAccount(id);
+      handleResult(result, "Failed to delete account.");
+    });
+  };
+
+  const handleBulkApprove = (rows: UserType[], clear: () => void) => {
+    const pending = rows.filter((u) => !u.approved);
+    if (pending.length === 0) {
+      toast.info("All selected accounts are already approved.");
+      return;
     }
+    startBulk(async () => {
+      const result = await bulkApproveAccounts(pending.map((u) => u._id));
+      if (handleResult(result, "Failed to approve accounts.")) clear();
+    });
+  };
+
+  const handleBulkDelete = async (rows: UserType[], clear: () => void) => {
+    const ok = await confirm({
+      title: `Delete ${rows.length} account${rows.length === 1 ? "" : "s"}?`,
+      description:
+        "This permanently removes the selected accounts and cannot be undone.",
+      confirmLabel: "Delete all",
+      tone: "danger",
+    });
+    if (!ok) return;
+    startBulk(async () => {
+      const result = await bulkDeleteAccounts(rows.map((u) => u._id));
+      if (handleResult(result, "Failed to delete accounts.")) clear();
+    });
   };
 
   const openAddModal = () => {
     setEditingUser(null);
-    setFormData({ name: "", email: "", batchId: "", role: "user", password: "" });
+    setFormData(EMPTY_FORM);
+    setShowPassword(false);
     setIsModalOpen(true);
   };
 
@@ -43,40 +141,48 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
       name: user.name,
       email: user.email,
       batchId: user.batchId,
-      role: user.role,
-      password: "", // Leave blank to avoid accidental overwrite
+      role: user.role === "admin" ? "admin" : "student",
+      password: "",
     });
+    setShowPassword(false);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
+    if (isSaving) return;
     setIsModalOpen(false);
     setEditingUser(null);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    // Pass null for ID if creating a new user
-    const res = await createOrUpdateAccount(editingUser ? editingUser._id : null, formData);
-    setIsLoading(false);
-    
-    if (res?.error) {
-      alert(res.error);
-    } else {
-      closeModal();
-    }
+    startSaving(async () => {
+      const result = await createOrUpdateAccount(
+        editingUser ? editingUser._id : null,
+        formData,
+      );
+      if (handleResult(result, "Failed to save account.")) {
+        setIsModalOpen(false);
+        setEditingUser(null);
+      }
+    });
   };
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Accounts</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage user roles, approvals, and access.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+            Accounts
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Monitor users, approve student registrations, and manage access.
+          </p>
         </div>
-        <Button onClick={openAddModal} className="gap-2 bg-blue-600 hover:bg-blue-700 hover:cursor-pointer shadow-sm">
+        <Button
+          onClick={openAddModal}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 hover:cursor-pointer shadow-sm"
+        >
           <UserPlus className="h-4 w-4" /> Add Account
         </Button>
       </div>
@@ -88,84 +194,224 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
           onDelete: handleDelete,
         })}
         data={users}
+        getRowId={(row) => row._id}
+        renderToolbar={(rows, clear) => (
+          <>
+            <span className="text-sm text-slate-600">
+              {rows.length} selected
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={isBulkPending}
+              onClick={() => handleBulkApprove(rows, clear)}
+              className="hover:cursor-pointer text-xs h-8 bg-green-600 hover:bg-green-700 text-white border-transparent"
+            >
+              <Check className="h-3.5 w-3.5 mr-1" />
+              Approve
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={isBulkPending}
+              onClick={() => handleBulkDelete(rows, clear)}
+              className="hover:cursor-pointer text-xs h-8 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+            >
+              <Trash2 className="h-3.5 w-3.5 mr-1" />
+              Delete
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={clear}
+              className="hover:cursor-pointer text-xs h-8 text-slate-500 hover:text-slate-700"
+            >
+              Clear
+            </Button>
+          </>
+        )}
       />
 
-      {/* Modal Overlay */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="account-modal-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeModal();
+          }}
+        >
           <Card className="w-full max-w-md shadow-2xl border-none">
             <div className="flex justify-between items-center p-6 border-b border-slate-100">
-              <h2 className="text-xl font-bold text-slate-900">{editingUser ? "Edit Account" : "Add New Account"}</h2>
-              <button onClick={closeModal} className="text-slate-400 hover:text-slate-700 hover:cursor-pointer transition-colors">
+              <h2
+                id="account-modal-title"
+                className="text-xl font-bold text-slate-900"
+              >
+                {editingUser ? "Edit Account" : "Add New Account"}
+              </h2>
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={isSaving}
+                aria-label="Close"
+                className="text-slate-400 hover:text-slate-700 hover:cursor-pointer transition-colors disabled:opacity-50"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <CardContent className="p-6">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">Full Name</label>
+                  <label
+                    htmlFor="account-name"
+                    className="text-sm font-semibold text-slate-700"
+                  >
+                    Full Name
+                  </label>
                   <Input
+                    id="account-name"
                     required
+                    autoFocus
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     placeholder="John Doe"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">Student / Batch ID</label>
+                  <label
+                    htmlFor="account-batchId"
+                    className="text-sm font-semibold text-slate-700"
+                  >
+                    Student / Batch ID
+                  </label>
                   <Input
+                    id="account-batchId"
                     required
+                    autoCapitalize="none"
+                    spellCheck={false}
                     value={formData.batchId}
-                    onChange={(e) => setFormData({ ...formData, batchId: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, batchId: e.target.value })
+                    }
                     placeholder="S12345678"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">Email Address</label>
+                  <label
+                    htmlFor="account-email"
+                    className="text-sm font-semibold text-slate-700"
+                  >
+                    Email Address
+                  </label>
                   <Input
+                    id="account-email"
                     required
                     type="email"
+                    autoComplete="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     placeholder="user@example.com"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">Account Role</label>
+                  <label
+                    htmlFor="account-role"
+                    className="text-sm font-semibold text-slate-700"
+                  >
+                    Account Role
+                  </label>
                   <select
+                    id="account-role"
                     required
                     value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        role: e.target.value as FormState["role"],
+                      })
+                    }
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:border-blue-600 hover:cursor-pointer"
                   >
-                    <option value="user">User (Student)</option>
+                    <option value="student">Student</option>
                     <option value="admin">Administrator</option>
                   </select>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">
-                    Password {editingUser && <span className="text-xs text-slate-400 font-normal">(Leave blank to keep unchanged)</span>}
+                  <label
+                    htmlFor="account-password"
+                    className="text-sm font-semibold text-slate-700"
+                  >
+                    Password{" "}
+                    {editingUser && (
+                      <span className="text-xs text-slate-400 font-normal">
+                        (Leave blank to keep unchanged)
+                      </span>
+                    )}
                   </label>
-                  <Input
-                    type="password"
-                    required={!editingUser} // Required if creating new
-                    minLength={6}
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder="••••••••"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="account-password"
+                      type={showPassword ? "text" : "password"}
+                      required={!editingUser}
+                      minLength={6}
+                      autoComplete="new-password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      placeholder="••••••••"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      aria-pressed={showPassword}
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700 hover:cursor-pointer transition-colors focus:outline-none focus-visible:text-blue-600"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="pt-4 flex justify-end gap-3">
-                  <Button type="button" variant="outline" onClick={closeModal} className="hover:cursor-pointer">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={closeModal}
+                    disabled={isSaving}
+                    className="hover:cursor-pointer"
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 hover:cursor-pointer">
-                    {isLoading ? "Saving..." : editingUser ? "Save Changes" : "Create Account"}
+                  <Button
+                    type="submit"
+                    disabled={isSaving}
+                    className="bg-blue-600 hover:bg-blue-700 hover:cursor-pointer gap-2"
+                  >
+                    {isSaving && (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    )}
+                    {isSaving
+                      ? "Saving..."
+                      : editingUser
+                        ? "Save Changes"
+                        : "Create Account"}
                   </Button>
                 </div>
               </form>

@@ -26,8 +26,8 @@ export default async function AccountsPage() {
     name: u.name,
     email: u.email,
     batchId: u.batchId,
-    role: u.role || "user",
-    approved: u.approved || false,
+    role: u.role === "admin" ? "admin" : "student",
+    approved: Boolean(u.approved),
   }));
 
   return <AccountsClient users={serializedUsers} />;

@@ -48,7 +48,11 @@ export function Highlights() {
                     {mockNews[0].title}
                   </CardTitle>
                 </div>
-                <Button className="w-fit rounded-full gap-2 group/btn" size="lg">
+                <Button
+                  render={<Link href="/main/bulletin" />}
+                  className="w-fit rounded-full gap-2 group/btn"
+                  size="lg"
+                >
                   Read Article <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                 </Button>
               </div>

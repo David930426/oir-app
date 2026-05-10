@@ -13,7 +13,8 @@ import {
   Mail,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { logout } from "@/lib/actions/logout.action"; // Update path if needed
+import { logout } from "@/lib/actions/logout.action";
+import { useConfirm } from "@/components/confirm-dialog";
 
 interface UserProfile {
   name: string;
@@ -25,6 +26,17 @@ interface UserProfile {
 
 export default function ProfileClient({ user }: { user: UserProfile }) {
   const initials = user?.name ? user.name.substring(0, 2).toUpperCase() : "OI";
+  const confirm = useConfirm();
+
+  const handleLogout = async () => {
+    const ok = await confirm({
+      title: "Sign out of your account?",
+      description: "You'll need to log in again to continue.",
+      confirmLabel: "Sign out",
+      tone: "warning",
+    });
+    if (ok) await logout();
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl space-y-8">
@@ -81,17 +93,16 @@ export default function ProfileClient({ user }: { user: UserProfile }) {
               Edit Profile
             </Button>
 
-            <form action={logout}>
-              <Button
-                variant="destructive"
-                size="sm"
-                type="submit"
-                className="gap-2 transition-all hover:cursor-pointer"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </Button>
-            </form>
+            <Button
+              variant="destructive"
+              size="sm"
+              type="button"
+              onClick={handleLogout}
+              className="gap-2 transition-all hover:cursor-pointer"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
           </div>
         </div>
       </motion.div>

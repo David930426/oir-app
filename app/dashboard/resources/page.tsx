@@ -71,15 +71,15 @@ export default function AdminResources() {
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <div className="flex bg-muted/50 p-1 rounded-lg border">
-               <button 
+               <button
                  onClick={() => setViewMode('grid')}
-                 className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                 className={`p-1.5 rounded-md transition-all hover:cursor-pointer ${viewMode === 'grid' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                >
                  <LayoutGrid className="h-4 w-4" />
                </button>
-               <button 
+               <button
                  onClick={() => setViewMode('list')}
-                 className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                 className={`p-1.5 rounded-md transition-all hover:cursor-pointer ${viewMode === 'list' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                >
                  <ListIcon className="h-4 w-4" />
                </button>

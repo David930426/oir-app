@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import bcrypt from "bcryptjs";
 import User from "@/lib/models/User.model";
 import { logger } from "@/lib/logger";
@@ -12,7 +14,7 @@ async function seedAdmin() {
       process.env.MONGODB_URI || "mongodb://mongo@localhost:27017";
     const batchId = process.env.SEED_BATCH || "A001";
     const password =
-      process.env.SEED_PASSWORD || randomBytes(8).toString("hex");
+      process.env.SEED_PASS || randomBytes(8).toString("hex");
 
     await mongoose.connect(MONGODB_URI);
     const existingAdmin = await User.findOne({ batchId });

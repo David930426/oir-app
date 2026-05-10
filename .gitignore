@@ -59,3 +59,29 @@ next-env.d.ts
 # Private and Public Keys
 # ========================
 *.pem
+
+# ========================
+# AI Tool Configs (local)
+# ========================
+.codex/
+.gemini/
+.claude/
+.cursor/
+.mcp.json
+
+# ========================
+# Package Manager Local Files
+# ========================
+pnpm-approved-builds.json
+
+# ========================
+# Coverage & Test Output
+# ========================
+/coverage
+*.lcov
+
+# ========================
+# Misc
+# ========================
+*.tgz
+.cache/

@@ -6,8 +6,14 @@ import { AuthPayload } from '@/types/payload';
  * 1. SIGN TOKEN (The "Encrypt" equivalent for Auth)
  * Uses the PRIVATE KEY to create a secure, tamper-proof login token.
  * Call this ONLY from your Login API route.
+ *
+ * `expiresIn` accepts a jose duration string (e.g. "2h", "30d") or a number of seconds.
+ * Defaults to "1d" so the token's lifetime matches the default cookie expiry.
  */
-export async function signAuthToken(payload: AuthPayload): Promise<string> {
+export async function signAuthToken(
+  payload: AuthPayload,
+  expiresIn: string | number = '1d',
+): Promise<string> {
   try {
     const privateKeyString = process.env.PRIVATE_KEY || "";
     const privateKey = await importPKCS8(privateKeyString.replace(/\\n/g, '\n'), 'RS256');
@@ -15,7 +21,7 @@ export async function signAuthToken(payload: AuthPayload): Promise<string> {
     const token = await new SignJWT(payload as any)
       .setProtectedHeader({ alg: 'RS256' })
       .setIssuedAt()
-      .setExpirationTime('2h')
+      .setExpirationTime(expiresIn)
       .sign(privateKey);
 
     return token;
