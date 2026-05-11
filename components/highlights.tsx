@@ -50,6 +50,7 @@ export function Highlights() {
                 </div>
                 <Button
                   render={<Link href="/main/bulletin" />}
+                  nativeButton={false}
                   className="w-fit rounded-full gap-2 group/btn"
                   size="lg"
                 >

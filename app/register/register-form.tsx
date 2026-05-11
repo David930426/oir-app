@@ -10,6 +10,7 @@ import { Sparkles } from "lucide-react";
 import { registerUser } from "../../lib/actions/register.action";
 import { toast } from "sonner";
 import { SubmitButton } from "@/components/submit-button";
+import { RequiredMark } from "@/components/ui/required-mark";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -83,12 +84,13 @@ export default function RegisterForm() {
               className="text-sm font-semibold text-slate-700"
             >
               Full Name
+              <RequiredMark />
             </label>
             <Input
               id="name"
               type="text"
               placeholder="John Doe"
-              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
+              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
               {...register("name", { required: true })}
             />
           </div>
@@ -98,15 +100,30 @@ export default function RegisterForm() {
               htmlFor="batchId"
               className="text-sm font-semibold text-slate-700"
             >
-              Student ID / Batch ID
+              Student ID
+              <RequiredMark />
             </label>
             <Input
               id="batchId"
               type="text"
-              placeholder="e.g. 2023-001"
-              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
-              {...register("batchId", { required: true })}
+              autoCapitalize="characters"
+              spellCheck={false}
+              placeholder="S12350130"
+              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all font-mono"
+              {...register("batchId", {
+                required: true,
+                pattern: {
+                  value: /^S\d{8}$/,
+                  message:
+                    "Student ID must be 'S' followed by 8 digits (e.g. S12350130).",
+                },
+                setValueAs: (v: string) => v?.trim().toUpperCase() ?? "",
+              })}
             />
+            <p className="text-xs text-slate-500">
+              Format: <span className="font-mono">S</span> followed by 8
+              digits.
+            </p>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -115,12 +132,13 @@ export default function RegisterForm() {
               className="text-sm font-semibold text-slate-700"
             >
               Email address
+              <RequiredMark />
             </label>
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
-              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
+              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
               {...register("email", { required: true })}
             />
           </div>
@@ -131,12 +149,13 @@ export default function RegisterForm() {
               className="text-sm font-semibold text-slate-700"
             >
               Password
+              <RequiredMark />
             </label>
             <Input
               id="password"
               type="password"
               placeholder="••••••••"
-              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
+              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
               {...register("password", { required: true, minLength: 6 })}
             />
             <p className="text-xs text-slate-500">

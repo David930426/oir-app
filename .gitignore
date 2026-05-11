@@ -65,9 +65,11 @@ next-env.d.ts
 # ========================
 .codex/
 .gemini/
-.claude/
 .cursor/
 .mcp.json
+# `.claude/` is tracked (shared agents/skills/rules), but ignore personal overrides:
+.claude/settings.local.json
+.claude/CLAUDE.local.md
 
 # ========================
 # Package Manager Local Files

@@ -11,6 +11,12 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { SubmitButton } from "@/components/submit-button";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth.schema";
+import { RequiredMark } from "@/components/ui/required-mark";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function LoginPage() {
   const {
@@ -79,6 +85,7 @@ export default function LoginPage() {
               className="text-sm font-semibold text-slate-700"
             >
               Student ID
+              <RequiredMark />
             </label>
             <Input
               id="batchId"
@@ -89,7 +96,7 @@ export default function LoginPage() {
               placeholder="S12345678"
               aria-invalid={Boolean(errors.batchId) || undefined}
               aria-describedby={errors.batchId ? "batchId-error" : undefined}
-              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
+              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
               {...register("batchId")}
             />
             {errors.batchId && (
@@ -110,6 +117,7 @@ export default function LoginPage() {
                 className="text-sm font-semibold text-slate-700"
               >
                 Password
+                <RequiredMark />
               </label>
               <Link
                 href="/forgot-password"
@@ -128,22 +136,33 @@ export default function LoginPage() {
                 aria-describedby={
                   errors.password ? "password-error" : undefined
                 }
-                className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 pr-10 shadow-sm transition-all"
+                className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 pr-10 shadow-sm transition-all"
                 {...register("password")}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                aria-pressed={showPassword}
-                className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700 hover:cursor-pointer transition-colors focus:outline-none focus-visible:text-blue-600"
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </button>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      aria-pressed={showPassword}
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700 hover:cursor-pointer transition-colors focus:outline-none focus-visible:text-blue-600"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  }
+                />
+                <TooltipContent>
+                  {showPassword ? "Hide password" : "Show password"}
+                </TooltipContent>
+              </Tooltip>
             </div>
             {errors.password && (
               <p

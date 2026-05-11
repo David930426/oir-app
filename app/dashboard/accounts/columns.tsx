@@ -4,7 +4,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, ShieldAlert, Check } from "lucide-react";
-import { SelectCheckbox } from "./select-checkbox";
+import { SelectCheckbox } from "@/components/ui/select-checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type UserType = {
   _id: string;
@@ -131,24 +136,38 @@ export const getColumns = ({
             )}
             {user.approved ? "Revoke" : "Approve"}
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hover:cursor-pointer hover:text-blue-600 hover:bg-blue-50 h-8 w-8"
-            onClick={() => onEdit(user)}
-            aria-label={`Edit ${user.name}`}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hover:cursor-pointer hover:text-red-600 hover:bg-red-50 h-8 w-8"
-            onClick={() => onDelete(user._id)}
-            aria-label={`Delete ${user.name}`}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:cursor-pointer hover:text-blue-600 hover:bg-blue-50 h-8 w-8"
+                  onClick={() => onEdit(user)}
+                  aria-label={`Edit ${user.name}`}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+              }
+            />
+            <TooltipContent>Edit account</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:cursor-pointer hover:text-red-600 hover:bg-red-50 h-8 w-8"
+                  onClick={() => onDelete(user._id)}
+                  aria-label={`Delete ${user.name}`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              }
+            />
+            <TooltipContent>Delete account</TooltipContent>
+          </Tooltip>
         </div>
       );
     },

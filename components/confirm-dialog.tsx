@@ -70,7 +70,7 @@ export function ConfirmDialogProvider({
       ? "bg-red-600 hover:bg-red-700 text-white"
       : tone === "warning"
         ? "bg-amber-600 hover:bg-amber-700 text-white"
-        : "bg-blue-600 hover:bg-blue-700 text-white";
+        : "bg-[#2B4156] hover:bg-[#1f3142] text-white";
   const iconClassName =
     tone === "danger"
       ? "text-red-600 bg-red-50"

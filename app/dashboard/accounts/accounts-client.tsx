@@ -25,6 +25,12 @@ import {
 import { UserType, getColumns } from "./columns";
 import { DataTable } from "./data-table";
 import { useConfirm } from "@/components/confirm-dialog";
+import { RequiredMark } from "@/components/ui/required-mark";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type FormState = {
   name: string;
@@ -181,7 +187,7 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
         </div>
         <Button
           onClick={openAddModal}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 hover:cursor-pointer shadow-sm"
+          className="gap-2 bg-[#2B4156] hover:bg-[#1f3142] hover:cursor-pointer shadow-sm"
         >
           <UserPlus className="h-4 w-4" /> Add Account
         </Button>
@@ -250,15 +256,22 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
               >
                 {editingUser ? "Edit Account" : "Add New Account"}
               </h2>
-              <button
-                type="button"
-                onClick={closeModal}
-                disabled={isSaving}
-                aria-label="Close"
-                className="text-slate-400 hover:text-slate-700 hover:cursor-pointer transition-colors disabled:opacity-50"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <button
+                      type="button"
+                      onClick={closeModal}
+                      disabled={isSaving}
+                      aria-label="Close"
+                      className="text-slate-400 hover:text-slate-700 hover:cursor-pointer transition-colors disabled:opacity-50"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  }
+                />
+                <TooltipContent>Close</TooltipContent>
+              </Tooltip>
             </div>
             <CardContent className="p-6">
               <form onSubmit={handleSubmit} className="space-y-4" noValidate>
@@ -268,6 +281,7 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
                     className="text-sm font-semibold text-slate-700"
                   >
                     Full Name
+                    <RequiredMark />
                   </label>
                   <Input
                     id="account-name"
@@ -287,6 +301,7 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
                     className="text-sm font-semibold text-slate-700"
                   >
                     Student / Batch ID
+                    <RequiredMark />
                   </label>
                   <Input
                     id="account-batchId"
@@ -307,6 +322,7 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
                     className="text-sm font-semibold text-slate-700"
                   >
                     Email Address
+                    <RequiredMark />
                   </label>
                   <Input
                     id="account-email"
@@ -327,6 +343,7 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
                     className="text-sm font-semibold text-slate-700"
                   >
                     Account Role
+                    <RequiredMark />
                   </label>
                   <select
                     id="account-role"
@@ -350,11 +367,13 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
                     htmlFor="account-password"
                     className="text-sm font-semibold text-slate-700"
                   >
-                    Password{" "}
-                    {editingUser && (
-                      <span className="text-xs text-slate-400 font-normal">
+                    Password
+                    {editingUser ? (
+                      <span className="ml-1 text-xs text-slate-400 font-normal">
                         (Leave blank to keep unchanged)
                       </span>
+                    ) : (
+                      <RequiredMark />
                     )}
                   </label>
                   <div className="relative">
@@ -371,21 +390,30 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
                       placeholder="••••••••"
                       className="pr-10"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      aria-label={
-                        showPassword ? "Hide password" : "Show password"
-                      }
-                      aria-pressed={showPassword}
-                      className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700 hover:cursor-pointer transition-colors focus:outline-none focus-visible:text-blue-600"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
+                    <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((v) => !v)}
+                            aria-label={
+                              showPassword ? "Hide password" : "Show password"
+                            }
+                            aria-pressed={showPassword}
+                            className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700 hover:cursor-pointer transition-colors focus:outline-none focus-visible:text-blue-600"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        }
+                      />
+                      <TooltipContent>
+                        {showPassword ? "Hide password" : "Show password"}
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </div>
 
@@ -402,7 +430,7 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
                   <Button
                     type="submit"
                     disabled={isSaving}
-                    className="bg-blue-600 hover:bg-blue-700 hover:cursor-pointer gap-2"
+                    className="bg-[#2B4156] hover:bg-[#1f3142] hover:cursor-pointer gap-2"
                   >
                     {isSaving && (
                       <Loader2 className="h-4 w-4 animate-spin" />

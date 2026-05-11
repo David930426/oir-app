@@ -138,7 +138,9 @@ export default function AdminSidebarUI({
             Admin Portal
           </span>
         </header>
-        <div className="p-8 pb-12 flex-1 overflow-auto">{children}</div>
+        <div className="px-6 py-8 pb-12 sm:px-10 lg:px-12 flex-1 overflow-auto">
+          {children}
+        </div>
       </main>
     </SidebarProvider>
   );
