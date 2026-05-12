@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { SubmitButton } from "@/components/submit-button";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth.schema";
 import { RequiredMark } from "@/components/ui/required-mark";
+import { isNextRedirectError } from "@/lib/is-redirect-error";
 import {
   Tooltip,
   TooltipContent,
@@ -22,13 +23,16 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { batchId: "", password: "", rememberMe: false },
   });
   const [formError, setFormError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  // `isSubmitting` stays true until navigation completes since the redirect
+  // tears the page down — so a successful login keeps the form locked.
+  const isLocked = isSubmitting;
 
   const onSubmit = async (data: LoginInput) => {
     setFormError(null);
@@ -43,6 +47,9 @@ export default function LoginPage() {
 
       toast.success("Welcome back!");
     } catch (err) {
+      // `signIn` throws Next.js's redirect signal on success — let the
+      // framework handle it instead of swallowing it as an error.
+      if (isNextRedirectError(err)) throw err;
       console.error("Login failed", err);
       setFormError("Something went wrong. Please try again later.");
     }
@@ -78,6 +85,11 @@ export default function LoginPage() {
         noValidate
         className="flex flex-col gap-5 mt-4"
       >
+      <fieldset
+        disabled={isLocked}
+        aria-busy={isLocked || undefined}
+        className="contents disabled:[&_*]:cursor-not-allowed"
+      >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <label
@@ -91,12 +103,12 @@ export default function LoginPage() {
               id="batchId"
               type="text"
               autoComplete="username"
-              autoCapitalize="none"
+              autoCapitalize="characters"
               spellCheck={false}
               placeholder="S12345678"
               aria-invalid={Boolean(errors.batchId) || undefined}
               aria-describedby={errors.batchId ? "batchId-error" : undefined}
-              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all"
+              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all uppercase font-mono"
               {...register("batchId")}
             />
             {errors.batchId && (
@@ -121,7 +133,14 @@ export default function LoginPage() {
               </label>
               <Link
                 href="/forgot-password"
-                className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                aria-disabled={isLocked || undefined}
+                tabIndex={isLocked ? -1 : 0}
+                onClick={(e) => {
+                  if (isLocked) e.preventDefault();
+                }}
+                className={`text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors ${
+                  isLocked ? "pointer-events-none opacity-50" : ""
+                }`}
               >
                 Forgot password?
               </Link>
@@ -197,14 +216,22 @@ export default function LoginPage() {
           </div>
         )}
 
-        <SubmitButton register={false} />
+        <SubmitButton register={false} pending={isLocked} />
+      </fieldset>
       </form>
 
       <p className="text-center text-sm text-slate-500 mt-4">
         Don&apos;t have an account yet?{" "}
         <Link
           href="/register"
-          className="font-semibold text-blue-700 hover:text-blue-800 hover:underline transition-colors"
+          aria-disabled={isLocked || undefined}
+          tabIndex={isLocked ? -1 : 0}
+          onClick={(e) => {
+            if (isLocked) e.preventDefault();
+          }}
+          className={`font-semibold text-blue-700 hover:text-blue-800 hover:underline transition-colors ${
+            isLocked ? "pointer-events-none opacity-50" : ""
+          }`}
         >
           Request access
         </Link>

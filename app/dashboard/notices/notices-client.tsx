@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -118,6 +119,8 @@ export default function NoticesClient({
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [editing, setEditing] = useState<AdminNotice | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   // Used only in CREATE mode — multi-select student picker
@@ -483,17 +486,19 @@ export default function NoticesClient({
         </Table>
       </Card>
 
-      <AnimatePresence>
-        {modalOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="notice-modal-title"
-            onClick={(e) => {
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {modalOpen && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="notice-modal-title"
+                onClick={(e) => {
               if (e.target === e.currentTarget) closeModal();
             }}
           >
@@ -548,7 +553,7 @@ export default function NoticesClient({
                             setEditingStudentId(e.target.value.toUpperCase())
                           }
                           placeholder="S12350130"
-                          className="font-mono"
+                          className="font-mono uppercase"
                         />
                         <p className="text-xs text-slate-500">
                           Format:{" "}
@@ -710,9 +715,11 @@ export default function NoticesClient({
                 </form>
               </CardContent>
             </Card>
-          </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body,
         )}
-      </AnimatePresence>
 
       <div className="flex items-center gap-1 text-xs text-slate-500">
         <MapPin className="h-3.5 w-3.5" />

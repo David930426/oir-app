@@ -93,8 +93,10 @@ export function MultiSelect({
           className="z-50 w-(--anchor-width) max-w-[min(100vw-2rem,32rem)]"
         >
           <Combobox.Popup className="max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white shadow-xl outline-none">
-            <Combobox.Empty className="px-3 py-6 text-center text-sm text-slate-500">
-              {allSelected ? "All options selected." : emptyMessage}
+            <Combobox.Empty>
+              <div className="px-3 py-6 text-center text-sm text-slate-500">
+                {allSelected ? "All options selected." : emptyMessage}
+              </div>
             </Combobox.Empty>
             <Combobox.List className="p-1">
               {(option: MultiSelectOption) => (

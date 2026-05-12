@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,6 +64,8 @@ function handleResult(result: ActionResult | undefined, fallbackError: string) {
 
 export default function AccountsClient({ users }: { users: UserType[] }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [editingUser, setEditingUser] = useState<UserType | null>(null);
   const [formData, setFormData] = useState<FormState>(EMPTY_FORM);
   const [showPassword, setShowPassword] = useState(false);
@@ -238,16 +241,18 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
         )}
       />
 
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="account-modal-title"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeModal();
-          }}
-        >
+      {mounted &&
+        isModalOpen &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="account-modal-title"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) closeModal();
+            }}
+          >
           <Card className="w-full max-w-md shadow-2xl border-none">
             <div className="flex justify-between items-center p-6 border-b border-slate-100">
               <h2
@@ -306,13 +311,17 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
                   <Input
                     id="account-batchId"
                     required
-                    autoCapitalize="none"
+                    autoCapitalize="characters"
                     spellCheck={false}
                     value={formData.batchId}
                     onChange={(e) =>
-                      setFormData({ ...formData, batchId: e.target.value })
+                      setFormData({
+                        ...formData,
+                        batchId: e.target.value.toUpperCase(),
+                      })
                     }
-                    placeholder="S12345678"
+                    placeholder="S12345678 or A00000001"
+                    className="font-mono uppercase"
                   />
                 </div>
 
@@ -445,8 +454,9 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
               </form>
             </CardContent>
           </Card>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

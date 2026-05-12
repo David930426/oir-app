@@ -12,6 +12,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "BatchId is required"],
       unique: true,
+      uppercase: true,
+      trim: true,
+      match: [
+        /^[A-Z]\d+$/,
+        "ID must start with a letter followed by numbers (e.g. S12350130 or A001).",
+      ],
     },
     email: {
       type: String,

@@ -19,9 +19,14 @@ export default function RegisterForm() {
   const {
     register,
     handleSubmit,
+    formState: { isSubmitting },
   } = useForm({
     defaultValues: { name: "", batchId: "", email: "", password: "" },
   });
+
+  // Stays true through router.push so the form remains locked while the
+  // /login route boots in. Real errors clear it via the error state branch.
+  const isLocked = isSubmitting;
 
   const onSubmit = async (data: any) => {
     setError(null);
@@ -77,6 +82,11 @@ export default function RegisterForm() {
           </div>
         )}
 
+        <fieldset
+          disabled={isLocked}
+          aria-busy={isLocked || undefined}
+          className="contents disabled:[&_*]:cursor-not-allowed"
+        >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <label
@@ -109,7 +119,7 @@ export default function RegisterForm() {
               autoCapitalize="characters"
               spellCheck={false}
               placeholder="S12350130"
-              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all font-mono"
+              className="bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus-visible:ring-blue-600 focus-visible:border-blue-600 h-11 shadow-sm transition-all font-mono uppercase"
               {...register("batchId", {
                 required: true,
                 pattern: {
@@ -164,14 +174,22 @@ export default function RegisterForm() {
           </div>
         </div>
 
-        <SubmitButton register={true} />
+        <SubmitButton register={true} pending={isLocked} />
+        </fieldset>
       </form>
 
       <p className="text-center text-sm text-slate-500 mt-4">
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-semibold text-blue-700 hover:text-blue-800 hover:underline transition-colors"
+          aria-disabled={isLocked || undefined}
+          tabIndex={isLocked ? -1 : 0}
+          onClick={(e) => {
+            if (isLocked) e.preventDefault();
+          }}
+          className={`font-semibold text-blue-700 hover:text-blue-800 hover:underline transition-colors ${
+            isLocked ? "pointer-events-none opacity-50" : ""
+          }`}
         >
           Sign In
         </Link>
