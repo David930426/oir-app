@@ -7,10 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import {
   User as UserIcon,
   LogOut,
-  Settings,
-  Bell,
   ShieldCheck,
   Mail,
+  BadgeCheck,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { logout } from "@/lib/actions/logout.action";
@@ -39,11 +38,20 @@ export default function ProfileClient({ user }: { user: UserProfile }) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl space-y-8">
+    <div className="container mx-auto px-4 pt-10 pb-16 md:pt-14 max-w-4xl space-y-8">
+      <div className="max-w-2xl space-y-3 border-b pb-8">
+        <p className="text-[11px] uppercase tracking-[0.22em] font-semibold text-primary/60">
+          Your account
+        </p>
+        <h1 className="font-heading text-4xl md:text-5xl font-medium tracking-tight">
+          Profile
+        </h1>
+      </div>
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row items-center gap-8 bg-card p-8 rounded-3xl border shadow-sm"
+        className="flex flex-col md:flex-row items-center gap-8 bg-card p-8 rounded-xl border"
       >
         <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-primary/10">
           <AvatarImage src={user.avatar} alt={user.name} />
@@ -54,9 +62,9 @@ export default function ProfileClient({ user }: { user: UserProfile }) {
 
         <div className="flex-1 text-center md:text-left space-y-4">
           <div className="flex flex-col md:flex-row md:items-center gap-3 justify-center md:justify-start">
-            <h1 className="text-3xl font-bold tracking-tight capitalize">
+            <h2 className="font-heading text-3xl font-medium tracking-tight capitalize">
               {user.name}
-            </h1>
+            </h2>
             <Badge
               variant={user.role === "admin" ? "default" : "secondary"}
               className="w-fit mx-auto md:mx-0 uppercase"
@@ -85,15 +93,6 @@ export default function ProfileClient({ user }: { user: UserProfile }) {
 
           <div className="flex gap-3 justify-center md:justify-start pt-4">
             <Button
-              variant="outline"
-              size="sm"
-              className="gap-2 transition-all hover:cursor-pointer"
-            >
-              <Settings className="h-4 w-4" />
-              Edit Profile
-            </Button>
-
-            <Button
               variant="destructive"
               size="sm"
               type="button"
@@ -107,60 +106,61 @@ export default function ProfileClient({ user }: { user: UserProfile }) {
         </div>
       </motion.div>
 
-      {/* BOTTOM CARDS (Truncated for brevity, paste the rest of your cards here) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* E-ID CARD */}
-        <Card className="border-none shadow-sm bg-muted/30">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        {/* E-ID card */}
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-primary" />
-              Electronic Student ID
+              Electronic student ID
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex justify-center p-8 bg-white m-4 rounded-xl border-2 border-dashed border-zinc-200">
+          <CardContent className="flex justify-center p-8 bg-muted/40 m-4 rounded-xl border border-dashed">
             <div className="text-center space-y-4">
-              <div className="bg-zinc-100 p-4 rounded-lg">
-                <div className="w-48 h-48 bg-zinc-200 animate-pulse rounded-md mx-auto flex items-center justify-center text-zinc-400 font-medium text-sm tracking-widest">
-                  QR PREVIEW
+              <div className="bg-card p-4 rounded-lg border">
+                <div className="w-48 h-48 bg-muted rounded-md mx-auto flex items-center justify-center text-muted-foreground font-medium text-xs tracking-[0.18em] uppercase">
+                  Coming soon
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground italic">
-                Scan this at campus gates or library
+              <p className="text-xs text-muted-foreground">
+                Your scannable campus ID will appear here.
               </p>
             </div>
           </CardContent>
         </Card>
 
-        {/* SETTINGS CARD */}
-        <Card className="border-none shadow-sm bg-muted/30">
+        {/* Account details */}
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Bell className="h-5 w-5 text-primary" />
-              Account Settings
+              <BadgeCheck className="h-5 w-5 text-primary" />
+              Account details
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-1">
             {[
-              { label: "Push Notifications", value: "Enabled" },
-              { label: "Language", value: "English (US)" },
-              { label: "Emergency Contact", value: "+1 234 567 890" },
-            ].map((item, i) => (
+              { label: "Full name", value: user.name },
+              { label: "Student ID", value: user.batchId },
+              { label: "Email", value: user.email || "—" },
+              { label: "Role", value: user.role },
+            ].map((item) => (
               <div
-                key={i}
-                className="flex justify-between items-center py-3 border-b last:border-0 border-border/50"
+                key={item.label}
+                className="flex justify-between items-center gap-4 py-3 border-b last:border-0"
               >
-                <span className="text-sm font-medium">{item.label}</span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm font-medium shrink-0">{item.label}</span>
+                <span className="text-sm text-muted-foreground truncate capitalize">
                   {item.value}
                 </span>
               </div>
             ))}
-            <Button
-              variant="ghost"
-              className="w-full text-primary hover:text-primary/80 hover:bg-primary/5 mt-2 hover:cursor-pointer"
-            >
-              Manage All Settings
-            </Button>
+            <p className="text-xs text-muted-foreground pt-3">
+              To update your details, contact the OIR office at{" "}
+              <a href="mailto:oir@thu.edu.tw" className="text-primary hover:underline">
+                oir@thu.edu.tw
+              </a>
+              .
+            </p>
           </CardContent>
         </Card>
       </div>

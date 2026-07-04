@@ -22,18 +22,34 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   getRowId?: (row: TData) => string;
-  renderToolbar?: (selectedRows: TData[], clearSelection: () => void) => React.ReactNode;
+  /** Column id used by the search box. Omit to hide the search box. */
+  searchColumnId?: string;
+  searchPlaceholder?: string;
+  /** Noun used in the footer count, e.g. { one: "account", other: "accounts" }. */
+  countNoun?: { one: string; other: string };
+  emptyMessage?: React.ReactNode;
+  onRowClick?: (row: TData) => void;
+  renderToolbar?: (
+    selectedRows: TData[],
+    clearSelection: () => void,
+  ) => React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   getRowId,
+  searchColumnId,
+  searchPlaceholder = "Search...",
+  countNoun = { one: "row", other: "rows" },
+  emptyMessage = "No results.",
+  onRowClick,
   renderToolbar,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -59,26 +75,34 @@ export function DataTable<TData, TValue>({
 
   const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
   const clearSelection = React.useCallback(() => setRowSelection({}), []);
+  const rowCount = table.getFilteredRowModel().rows.length;
+  const searchColumn = searchColumnId
+    ? table.getColumn(searchColumnId)
+    : undefined;
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
-        <Input
-          placeholder="Search by name or email..."
-          value={
-            (table.getColumn("name_email")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("name_email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        {renderToolbar && selectedRows.length > 0 ? (
-          <div className="flex items-center gap-2">
-            {renderToolbar(selectedRows, clearSelection)}
-          </div>
-        ) : null}
-      </div>
+      {(searchColumn || renderToolbar) && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-4">
+          {searchColumn ? (
+            <Input
+              placeholder={searchPlaceholder}
+              value={(searchColumn.getFilterValue() as string) ?? ""}
+              onChange={(event) =>
+                searchColumn.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
+          ) : (
+            <span />
+          )}
+          {renderToolbar && selectedRows.length > 0 ? (
+            <div className="flex items-center gap-2">
+              {renderToolbar(selectedRows, clearSelection)}
+            </div>
+          ) : null}
+        </div>
+      )}
       <div className="rounded-md border shadow-sm bg-white overflow-hidden">
         <Table>
           <TableHeader className="bg-slate-50">
@@ -87,7 +111,14 @@ export function DataTable<TData, TValue>({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="text-xs uppercase font-semibold text-slate-500 py-3 px-6"
+                    className={cn(
+                      "text-xs uppercase font-semibold text-slate-500 py-3 px-6",
+                      (
+                        header.column.columnDef.meta as
+                          | { className?: string }
+                          | undefined
+                      )?.className,
+                    )}
                   >
                     {header.isPlaceholder
                       ? null
@@ -106,16 +137,35 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-slate-50/50 data-[state=selected]:bg-blue-50/60 transition-colors"
+                  onClick={
+                    onRowClick ? () => onRowClick(row.original) : undefined
+                  }
+                  className={cn(
+                    "hover:bg-slate-50/50 data-[state=selected]:bg-blue-50/60 transition-colors",
+                    onRowClick && "cursor-pointer",
+                  )}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-3 px-6">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const meta = cell.column.columnDef.meta as
+                      | { stopClick?: boolean; className?: string }
+                      | undefined;
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={cn("py-3 px-6", meta?.className)}
+                        onClick={
+                          meta?.stopClick
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (
@@ -124,7 +174,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center text-slate-500"
                 >
-                  No accounts found.
+                  {emptyMessage}
                 </TableCell>
               </TableRow>
             )}
@@ -134,8 +184,8 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center justify-between gap-2 py-4">
         <p className="text-xs text-slate-500">
           {selectedRows.length > 0
-            ? `${selectedRows.length} of ${table.getFilteredRowModel().rows.length} selected`
-            : `${table.getFilteredRowModel().rows.length} account${table.getFilteredRowModel().rows.length === 1 ? "" : "s"}`}
+            ? `${selectedRows.length} of ${rowCount} selected`
+            : `${rowCount} ${rowCount === 1 ? countNoun.one : countNoun.other}`}
         </p>
         <div className="flex items-center gap-2">
           <Button

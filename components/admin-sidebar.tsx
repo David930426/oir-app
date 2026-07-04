@@ -13,6 +13,7 @@ import {
   User,
   Airplay,
   Users,
+  Building2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -56,6 +57,7 @@ export default function AdminSidebarUI({
     { name: "Student Notices", href: "/dashboard/notices", icon: Bell },
     { name: "Bulletin", href: "/dashboard/bulletin", icon: Newspaper },
     { name: "Resources", href: "/dashboard/resources", icon: FileText },
+    { name: "Organizations", href: "/dashboard/organizations", icon: Building2 },
     { name: "Main Page", href: "/main", icon: Airplay },
     { name: "Accounts", href: "/dashboard/accounts", icon: Users },
   ];
@@ -100,7 +102,7 @@ export default function AdminSidebarUI({
           </SidebarGroup>
         </SidebarContent>
 
-        <SidebarFooter className="p-4 border-t">
+        <SidebarFooter className="p-4 pb-10 border-t">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 px-2">
               <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">

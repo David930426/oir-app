@@ -111,13 +111,15 @@ function OwnerView({
   return (
     <div className="container mx-auto px-4 py-12 max-w-2xl space-y-8">
       <div className="text-center space-y-3">
-        <div className="mx-auto w-16 h-16 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center">
-          <Bell className="h-8 w-8" />
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight">Your Notice Board</h1>
+        <p className="text-[11px] uppercase tracking-[0.22em] font-semibold text-primary/60">
+          Mail &amp; documents
+        </p>
+        <h1 className="font-heading text-4xl md:text-5xl font-medium tracking-tight">
+          Your notice board
+        </h1>
         <p className="text-muted-foreground">
           Showing notices for{" "}
-          <span className="font-mono font-semibold text-slate-900">
+          <span className="font-mono font-semibold text-foreground">
             {batchId}
           </span>
         </p>
@@ -192,11 +194,11 @@ function SearchView() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-2xl space-y-8">
       <div className="text-center space-y-3">
-        <div className="mx-auto w-16 h-16 bg-slate-900/5 text-slate-900 rounded-full flex items-center justify-center">
-          <Bell className="h-8 w-8" />
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Student Notice Board
+        <p className="text-[11px] uppercase tracking-[0.22em] font-semibold text-primary/60">
+          Mail &amp; documents
+        </p>
+        <h1 className="font-heading text-4xl md:text-5xl font-medium tracking-tight">
+          Student notice board
         </h1>
         <p className="text-muted-foreground">
           Check by Student ID. For full details, sign in with the matching
@@ -204,7 +206,7 @@ function SearchView() {
         </p>
       </div>
 
-      <div className="flex gap-2 p-2 bg-card border rounded-2xl shadow-sm">
+      <div className="flex gap-2 p-2 bg-card border rounded-xl shadow-sm focus-within:border-primary/40 transition-colors">
         <Input
           placeholder="Enter Student ID (e.g. S12350130)"
           value={studentId}
@@ -217,7 +219,7 @@ function SearchView() {
         <Button
           onClick={handleSearch}
           disabled={isPending || !studentId.trim()}
-          className="h-12 px-8 rounded-xl font-semibold hover:cursor-pointer"
+          className="h-12 px-8 rounded-lg font-semibold hover:cursor-pointer"
         >
           {isPending ? "Searching..." : "Check Now"}
         </Button>
@@ -328,11 +330,11 @@ function FullNoticeCard({
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
     >
-      <Card className={`border-l-8 ${STATUS_ACCENT[notice.status]}`}>
+      <Card className={`border-l-4 ${STATUS_ACCENT[notice.status]}`}>
         <CardHeader className="pb-2">
           <div className="flex justify-between items-start gap-3">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-900 text-white">
+              <div className="p-2 rounded-lg bg-ink text-brass">
                 <Icon className="h-5 w-5" />
               </div>
               <div>
@@ -386,7 +388,7 @@ function PublicNoticeCard({
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
     >
-      <Card className={`border-l-8 ${STATUS_ACCENT[notice.status]}`}>
+      <Card className={`border-l-4 ${STATUS_ACCENT[notice.status]}`}>
         <CardHeader className="pb-2">
           <div className="flex justify-between items-start gap-3">
             <div className="flex items-center gap-3">
@@ -449,7 +451,7 @@ function ContactStrip() {
       ].map((item) => (
         <div
           key={item.title}
-          className="bg-muted/50 p-4 rounded-xl text-center"
+          className="border bg-card p-4 rounded-xl text-center"
         >
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
             {item.title}

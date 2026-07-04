@@ -24,7 +24,7 @@ import {
   type ActionResult,
 } from "@/lib/actions/account.action";
 import { UserType, getColumns } from "./columns";
-import { DataTable } from "./data-table";
+import { DataTable } from "@/components/data-table";
 import { useConfirm } from "@/components/confirm-dialog";
 import { RequiredMark } from "@/components/ui/required-mark";
 import {
@@ -204,6 +204,10 @@ export default function AccountsClient({ users }: { users: UserType[] }) {
         })}
         data={users}
         getRowId={(row) => row._id}
+        searchColumnId="name_email"
+        searchPlaceholder="Search by name or email..."
+        countNoun={{ one: "account", other: "accounts" }}
+        emptyMessage="No accounts found."
         renderToolbar={(rows, clear) => (
           <>
             <span className="text-sm text-slate-600">

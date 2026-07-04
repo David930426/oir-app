@@ -1,5 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Bell, Newspaper, Users, FileText } from "lucide-react";
+"use client";
+
+import { Bell, Newspaper, Users, FileText, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { motion } from "motion/react";
 
@@ -9,53 +10,62 @@ export function QuickActions() {
       label: "Notice Board",
       icon: Bell,
       path: "/main/board",
-      color: "bg-slate-800",
-      desc: "Track mail & docs",
+      iconBg: "bg-blue-50",
+      iconColor: "text-blue-700",
+      desc: "Track mail & documents waiting at the office",
     },
     {
       label: "OIR Bulletin",
       icon: Newspaper,
       path: "/main/bulletin",
-      color: "bg-slate-600",
-      desc: "Latest updates",
+      iconBg: "bg-teal-50",
+      iconColor: "text-teal-700",
+      desc: "Announcements, events, and campus news",
     },
     {
       label: "Resources",
       icon: FileText,
       path: "/main/resources",
-      color: "bg-slate-500",
-      desc: "Forms & guides",
+      iconBg: "bg-amber-50",
+      iconColor: "text-amber-700",
+      desc: "Official forms, guides, and downloads",
     },
     {
       label: "Organizations",
       icon: Users,
       path: "/main/orgs",
-      color: "bg-slate-400",
-      desc: "Student societies",
+      iconBg: "bg-violet-50",
+      iconColor: "text-violet-700",
+      desc: "Student societies and communities",
     },
   ];
   return (
-    <div className="max-w-6xl mx-auto px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-8">
+    <div className="max-w-6xl mx-auto px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {data.map((action, i) => (
-        <motion.div key={i} whileHover={{ y: -5 }} whileTap={{ scale: 0.95 }}>
-          <Link href={action.path}>
-            <Card className="h-full hover:shadow-xl transition-all duration-300 bg-card/50 backdrop-blur-sm border border-primary/10 rounded-3xl overflow-hidden group">
-              <CardContent className="flex flex-col items-center justify-center p-8 space-y-4 text-center">
-                <div
-                  className={`p-4 rounded-2xl ${action.color} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                >
-                  <action.icon className="h-7 w-7" />
+        <motion.div
+          key={action.path}
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.05 }}
+        >
+          <Link href={action.path} className="block h-full group">
+            <div className="h-full flex flex-col gap-4 p-5 rounded-xl border bg-card transition-all duration-200 hover:border-primary/30 hover:shadow-md">
+              <div className="flex items-start justify-between">
+                <div className={`p-2.5 rounded-lg ${action.iconBg} ${action.iconColor}`}>
+                  <action.icon className="h-5 w-5" />
                 </div>
-                <div>
-                  <span className="font-bold text-lg block mb-1 text-foreground">
-                    {action.label}
-                  </span>
-                  <span className="text-sm text-muted-foreground font-medium">
-                    {action.desc}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+                <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 transition-all group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground mb-1">
+                  {action.label}
+                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {action.desc}
+                </p>
+              </div>
+            </div>
           </Link>
         </motion.div>
       ))}

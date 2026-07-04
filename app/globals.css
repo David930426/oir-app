@@ -5,12 +5,17 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  /* Deep navy for dark bookend sections (hero, footer). */
+  --color-ink: #1c2a37;
+  --color-ink-soft: #24384a;
+  /* Muted institutional brass, used sparingly for eyebrows and accents on dark. */
+  --color-brass: #c9a96a;
 }
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
+    --font-heading: 'Geist Variable', sans-serif;
     --font-sans: 'Geist Variable', sans-serif;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
@@ -53,7 +58,7 @@
 }
 
 :root {
-    --background: oklch(0.99 0 0); /* Soft white */
+    --background: oklch(0.983 0.003 85); /* Warm paper */
     --foreground: oklch(0.25 0.05 240); /* Deep navy base */
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.25 0.05 240);
@@ -63,13 +68,13 @@
     --primary-foreground: oklch(0.985 0 0);
     --secondary: #8BA4B4; /* Accent blue from logo */
     --secondary-foreground: #2B4156;
-    --muted: oklch(0.96 0.01 240);
+    --muted: oklch(0.955 0.005 85);
     --muted-foreground: oklch(0.45 0.03 240);
-    --accent: #E2E8F0;
+    --accent: oklch(0.94 0.008 85);
     --accent-foreground: #2B4156;
     --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.9 0.02 240);
-    --input: oklch(0.9 0.02 240);
+    --border: oklch(0.905 0.01 80);
+    --input: oklch(0.905 0.01 80);
     --ring: #2B4156;
     --chart-1: #2B4156;
     --chart-2: #8BA4B4;
