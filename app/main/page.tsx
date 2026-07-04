@@ -12,7 +12,7 @@ export default async function Home() {
     <div className="pb-8">
       <HeroSection />
 
-      <div className="space-y-16 md:space-y-20 mt-[-2.5rem] md:mt-[-3rem] relative z-10">
+      <div className="space-y-16 md:space-y-20 -mt-10 md:-mt-12 relative z-10">
         <QuickActions />
 
         <Highlights bulletins={bulletins} />
